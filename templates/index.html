@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sofia">
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chatbot</title>
+    <style>
+        /* Add your styles here if needed */
+        body {
+            /* Use a linear gradient for the background */
+            background-color:#212F3C ;
+            background: linear-gradient(to bottom,   black 100%);
+            color: white; /* Set text color to white for better visibility */
+            height: 100vh; /* Ensure full viewport height */
+            margin: 0; /* Remove default body margin */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            font-family: "Trirong", serif;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #chatbox {
+            height: 200px;
+            width: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: white; /* Set chatbox background color to white */
+            color: black; /* Set font color to black */
+        }
+        #user-input {
+            width: 80%;
+            padding: 8px;
+            margin-right: 5px;
+        }
+        #send-button {
+            padding: 8px;
+            border: 1px solid #32e4cd;
+            background-color: #800000;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Support Palestine</h1>
+        <h2>Boycott vs Alternative</h2>
+        <div id="chatbox"></div>
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button id="send-button" onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+            var userInput = document.getElementById('user-input').value;
+            document.getElementById('chatbox').innerHTML += '<p><strong>🙋🏻‍♂: </strong>' + userInput + '</p>';
+
+            // Send the user input to the server using the Fetch API
+            fetch('/send_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'user_input=' + userInput,
+            })
+            .then(response => response.json())
+            .then(jsonResponse => {
+                var botResponse = jsonResponse.bot_response;
+
+                if (typeof botResponse === 'string') {
+                    document.getElementById('chatbox').innerHTML += '<p><strong>🤖:</strong> ' + botResponse + '</p>';
+                } else if (typeof botResponse === 'object' && botResponse !== null && botResponse.hasOwnProperty('response')) {
+                    var responseText = botResponse.response;
+                    document.getElementById('chatbox').innerHTML += '<p><strong>🤖:</strong> ' + responseText + '</p>';
+                } else {
+                    document.getElementById('chatbox').innerHTML += '<p><strong>🤖:</strong> اI\'m sorry, I don\'t understand that./p>';
+                }
+
+                // Scroll the chatbox to the bottom
+                var chatbox = document.getElementById('chatbox');
+                chatbox.scrollTop = chatbox.scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('chatbox').innerHTML += '<p><strong>🤖:</strong> An error occurred. Please try again.</p>';
+            });
+
+            document.getElementById('user-input').value = '';
+        }
+    </script>
+
+</body>
+</html>
